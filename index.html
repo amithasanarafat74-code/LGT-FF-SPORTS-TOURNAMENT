@@ -1,0 +1,2404 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>LGT   SPORTS   FF   TOURNAMENT</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+    <style>
+        :root {
+            --primary: #FF0000;
+            --primary-dark: #B91C1C;
+            --primary-light: #FCA5A5;
+            --theme-gradient: linear-gradient(135deg, #B91C1C 0%, #EF4444 50%, #FF0000 100%);
+            
+            --dark-bg: #050505;
+            --card-bg: #0F0F0F;
+            --card-border: #262626;
+            --text-primary: #FFFFFF;
+            --text-secondary: #A3A3A3;
+            --success: #10B981;
+            --danger: #EF4444;
+            --warning: #F59E0B;
+            --info: #3B82F6;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            background: var(--dark-bg);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .theme-gradient { background: var(--theme-gradient); }
+        .gold-gradient { background: var(--theme-gradient); } 
+        .gold-text {
+            background: var(--theme-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .card:hover {
+            border-color: var(--primary);
+            box-shadow: 0 0 30px rgba(255, 0, 0, 0.1);
+        }
+
+        .btn-theme {
+            background: var(--theme-gradient);
+            color: #fff;
+            font-weight: 600;
+            padding: 12px 24px;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            box-shadow: 0 4px 15px rgba(220, 38, 38, 0.4);
+        }
+        .btn-theme:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(255, 0, 0, 0.5); }
+        .btn-theme:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+        .btn-gold { 
+            background: var(--theme-gradient);
+            color: #fff; 
+            font-weight: 600; 
+            padding: 12px 24px; 
+            border-radius: 12px; 
+            border: none; 
+            cursor: pointer; 
+            transition: all 0.3s ease; 
+            display: inline-flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 8px; 
+            width: 100%; 
+        }
+        .btn-gold:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(255, 0, 0, 0.4); }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+            padding: 10px 20px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+        .btn-outline:hover { background: var(--primary); color: #fff; }
+        
+        .btn-danger {
+            background: rgba(239, 68, 68, 0.1);
+            color: #EF4444;
+            font-weight: 500;
+            padding: 10px 20px;
+            border-radius: 12px;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .btn-danger:hover { background: #EF4444; color: white; border-color: #EF4444; }
+
+        .input-field {
+            width: 100%;
+            background: #1A1A1A;
+            border: 2px solid var(--card-border);
+            color: var(--text-primary);
+            padding: 12px 15px;
+            border-radius: 12px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        .input-field:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 20px rgba(255, 0, 0, 0.2); }
+        .input-field::placeholder { color: var(--text-secondary); }
+
+        .page { display: none; animation: fadeIn 0.4s ease; padding-bottom: 80px; }
+        .page.active { display: block; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes float { 0%, 100% { transform: translateY(100vh) rotate(0deg); opacity: 0; } 10% { opacity: 0.3; } 90% { opacity: 0.3; } 100% { transform: translateY(-100vh) rotate(720deg); opacity: 0; } }
+
+        .notice-bar {
+            background: linear-gradient(90deg, var(--primary-dark), var(--primary), var(--primary-dark));
+            color: #fff; padding: 10px; text-align: center; font-weight: 600; font-size: 14px;
+            position: sticky; top: 0; z-index: 40;
+            display: none; 
+        }
+
+        .sidebar {
+            position: fixed; top: 0; right: -320px; width: 320px; height: 100vh;
+            background: var(--card-bg); border-left: 1px solid var(--card-border);
+            z-index: 1000; transition: right 0.3s ease; overflow-y: auto;
+        }
+        .sidebar.open { right: 0; }
+
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 999; display: none; }
+        .overlay.active { display: block; }
+
+        .menu-item {
+            display: flex; align-items: center; gap: 15px; padding: 16px 20px;
+            border-bottom: 1px solid var(--card-border); cursor: pointer; transition: all 0.3s ease;
+        }
+        .menu-item:hover { background: rgba(255, 0, 0, 0.1); border-left: 3px solid var(--primary); }
+
+        .status-badge { padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; display: inline-block; }
+        .status-pending { background: rgba(245, 158, 11, 0.2); color: var(--warning); }
+        .status-approved { background: rgba(16, 185, 129, 0.2); color: var(--success); }
+        .status-rejected { background: rgba(239, 68, 68, 0.2); color: var(--danger); }
+        .status-completed { background: rgba(255, 255, 255, 0.1); color: #fff; }
+
+        .wallet-card {
+            background: linear-gradient(145deg, #0F0F0F 0%, #1A1A1A 100%);
+            border: 1px solid var(--card-border); border-radius: 16px; padding: 20px; margin-bottom: 15px;
+        }
+
+        .progress-bar { height: 8px; background: var(--card-border); border-radius: 10px; overflow: hidden; }
+        .progress-fill { height: 100%; background: var(--theme-gradient); border-radius: 10px; transition: width 0.5s ease; }
+
+        .modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9); z-index: 2000; display: none;
+            justify-content: center; align-items: center; padding: 20px;
+            backdrop-filter: blur(8px);
+        }
+        .modal.active { display: flex; }
+        .modal-content {
+            background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 20px;
+            max-width: 500px; width: 100%; max-height: 90vh; overflow-y: auto; animation: modalIn 0.3s ease;
+            display: flex; flex-direction: column;
+        }
+        @keyframes modalIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+
+        .tab-btn {
+            padding: 10px 20px; background: transparent; border: none; color: var(--text-secondary);
+            cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.3s ease;
+        }
+        .tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
+
+        .floating-particles { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; overflow: hidden; }
+        .particle { position: absolute; width: 4px; height: 4px; background: var(--primary); border-radius: 50%; opacity: 0.3; animation: float 15s infinite; }
+
+        .glass-effect { background: rgba(15, 15, 15, 0.95); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--dark-bg); }
+        ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
+        
+        .loading-spinner { border: 3px solid rgba(255,255,255,0.1); border-top: 3px solid var(--primary); border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; margin: 0 auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* ================= NEW TOURNAMENT CARD DESIGN ================= */
+        .tournament-card {
+            background: linear-gradient(180deg, #161616 0%, #0a0a0a 100%);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            overflow: hidden;
+            position: relative;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .t-card-header {
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            background: rgba(0,0,0,0.2);
+        }
+
+        .t-date {
+            font-size: 12px;
+            color: #ccc;
+            font-weight: 500;
+            line-height: 1.4;
+        }
+
+        .t-match-id {
+            background: rgba(255, 0, 0, 0.15);
+            color: #ff4d4d;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 700;
+            border: 1px solid rgba(255, 0, 0, 0.3);
+        }
+
+        .t-card-notice {
+            background: rgba(245, 158, 11, 0.1);
+            color: #FCD34D;
+            padding: 6px 16px;
+            font-size: 11px;
+            text-align: center;
+            font-weight: 600;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .t-stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 2px;
+            background: #333;
+            margin: 0 16px 12px 16px;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid #444;
+        }
+        
+        .t-stat-item {
+            background: #1a1a1a;
+            padding: 8px 2px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .t-stat-label { font-size: 9px; color: #888; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px; font-weight: 700; }
+        .t-stat-val { font-size: 12px; font-weight: 700; color: #fff; }
+        .t-stat-val.gold { color: #FBBF24; }
+        .t-stat-val.green { color: #34D399; }
+
+        .t-info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 2px;
+            background: #333;
+            margin: 0 16px 12px 16px;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid #444;
+        }
+        
+        .t-info-item {
+            background: #1a1a1a;
+            padding: 6px 2px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .t-info-label { font-size: 9px; color: #888; text-transform: uppercase; font-weight: 700; }
+        .t-info-val { font-size: 11px; font-weight: 600; color: #ccc; }
+
+        .t-progress-area {
+            padding: 0 16px 12px;
+        }
+        .t-player-count {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            margin-bottom: 4px;
+            color: #fff;
+            font-weight: 500;
+        }
+        .t-progress-bar {
+            height: 6px;
+            background: #333;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .t-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #EF4444, #F59E0B);
+            border-radius: 3px;
+        }
+
+        .t-tabs-container {
+            padding: 0 16px;
+            margin-bottom: 12px;
+        }
+        .t-tabs {
+            display: flex;
+            background: #222;
+            padding: 3px;
+            border-radius: 8px;
+        }
+        .t-tab {
+            flex: 1;
+            text-align: center;
+            padding: 6px 2px;
+            font-size: 11px;
+            color: #888;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 600;
+        }
+        .t-tab.active {
+            background: #FF0000;
+            color: #fff;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .t-tab-content {
+            display: none;
+            padding: 10px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 8px;
+            font-size: 12px;
+            margin-bottom: 12px;
+            border: 1px solid rgba(255,255,255,0.05);
+            min-height: 40px;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+        .t-tab-content.active { display: block; }
+        
+        .prize-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 0;
+            border-bottom: 1px dashed rgba(255,255,255,0.1);
+            font-size: 12px;
+        }
+        .prize-row:last-child { border-bottom: none; }
+        .prize-rank {
+            background: #333;
+            color: #fff;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 700;
+            margin-right: 8px;
+        }
+
+        .room-box {
+            text-align: center;
+            background: rgba(255, 0, 0, 0.05);
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(255,0,0,0.1);
+        }
+        .room-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .room-row:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+        .room-label { font-size: 10px; color: #888; text-transform: uppercase; font-weight: 700; }
+        .room-val { font-size: 14px; font-weight: 700; color: #fff; letter-spacing: 1px; }
+
+        /* FIXED COUNTDOWN STYLE */
+        .t-countdown-footer {
+            background: rgba(0,0,0,0.5);
+            padding: 8px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .cd-label { font-size: 10px; color: #aaa; margin-right: 8px; font-weight: 600; text-transform: uppercase; }
+        .cd-time { font-size: 12px; color: var(--primary); font-weight: 700; font-family: 'Poppins', monospace; letter-spacing: 0.5px; }
+
+        .bottom-nav {
+            position: fixed; bottom: 0; left: 0; width: 100%;
+            background: var(--card-bg); border-top: 1px solid var(--card-border);
+            display: flex; justify-content: space-around; padding: 10px 0;
+            z-index: 50;
+        }
+        .nav-item {
+            display: flex; flex-direction: column; align-items: center; font-size: 10px; color: var(--text-secondary); gap: 4px; cursor: pointer;
+        }
+        .nav-item.active { color: var(--primary); }
+        .nav-item i { font-size: 18px; }
+
+        .result-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            margin-top: 10px;
+        }
+        .result-table th {
+            text-align: left;
+            color: var(--text-secondary);
+            padding: 8px;
+            border-bottom: 1px solid var(--card-border);
+        }
+        .result-table td {
+            padding: 10px 8px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .cloud-sync-bar {
+            display: flex; align-items: center; gap: 6px;
+            font-size: 11px; color: var(--primary);
+            padding: 4px 0;
+        }
+        .cloud-sync-bar .dot {
+            width: 6px; height: 6px; border-radius: 50%;
+            background: var(--primary);
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+    </style>
+</head>
+<body>
+    <div class="floating-particles" id="particles"></div>
+    <div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+    
+    <div class="notice-bar" id="noticeBar" style="display: none;">
+        <i class="fas fa-bullhorn mr-2"></i><span id="noticeText"></span>
+    </div>
+
+    <!--=================== LOGIN PAGE ===================-->
+    <div class="page active" id="loginPage">
+        <div class="min-h-screen flex items-center justify-center p-4">
+            <div class="w-full max-w-md">
+                <div class="text-center mb-8">
+                    <div class="w-24 h-24 mx-auto mb-4 rounded-full theme-gradient flex items-center justify-center shadow-lg shadow-red-500/40">
+                        <i class="fas fa-gamepad text-4xl text-white"></i>
+                    </div>
+                    <h1 class="text-3xl font-bold gold-text">Super Earn Pro</h1>
+                    <p class="text-gray-400 mt-2">Premium Tournament Platform</p>
+                </div>
+
+                <div class="card">
+                    <div class="flex mb-6 border-b border-gray-700">
+                        <button class="tab-btn active flex-1" id="loginTabBtn" onclick="switchAuthTab('login')">Login</button>
+                        <button class="tab-btn flex-1" id="registerTabBtn" onclick="switchAuthTab('register')">Register</button>
+                    </div>
+
+                    <form id="loginForm" onsubmit="handleLogin(event)">
+                        <div class="mb-4">
+                            <label class="block text-sm text-gray-400 mb-2">Phone Number</label>
+                            <input type="text" class="input-field" id="loginPhone" placeholder="01XXXXXXXXX" required>
+                        </div>
+                        <div class="mb-6">
+                            <label class="block text-sm text-gray-400 mb-2">Password</label>
+                            <input type="password" class="input-field" id="loginPassword" placeholder="Enter password" required>
+                        </div>
+                        <button type="submit" class="btn-gold w-full mb-4" id="loginBtn">
+                            <i class="fas fa-sign-in-alt"></i> Login
+                        </button>
+                    </form>
+
+                    <form id="registerForm" style="display: none;" onsubmit="handleRegister(event)">
+                        <div class="mb-4">
+                            <label class="block text-sm text-gray-400 mb-2">Full Name</label>
+                            <input type="text" class="input-field" id="regName" placeholder="Your full name" required>
+                        </div>
+                        <div class="mb-4">
+                            <label class="block text-sm text-gray-400 mb-2">Phone Number</label>
+                            <input type="text" class="input-field" id="regPhone" placeholder="01XXXXXXXXX" required>
+                        </div>
+                        <div class="mb-4">
+                            <label class="block text-sm text-gray-400 mb-2">Password</label>
+                            <input type="password" class="input-field" id="regPassword" placeholder="Create password" required>
+                        </div>
+                        <div class="mb-6">
+                            <label class="block text-sm text-gray-400 mb-2">Referral Code (Optional)</label>
+                            <input type="text" class="input-field" id="regReferral" placeholder="REFXXXXXX">
+                        </div>
+                        <button type="submit" class="btn-gold w-full mb-4" id="regSubmitBtn">
+                            <i class="fas fa-user-plus"></i> Register
+                        </button>
+                    </form>
+
+                    <div class="text-center mt-4">
+                        <button onclick="showPage('adminLogin')" class="text-sm text-gray-500 hover:text-red-500 transition">
+                            <i class="fas fa-lock mr-1"></i>Admin Panel
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--=================== ADMIN LOGIN PAGE ===================-->
+    <div class="page" id="adminLogin">
+        <div class="min-h-screen flex items-center justify-center p-4">
+            <div class="w-full max-w-md">
+                <div class="text-center mb-8">
+                    <div class="w-24 h-24 mx-auto mb-4 rounded-full bg-gradient-to-br from-red-600 to-red-900 flex items-center justify-center shadow-lg">
+                        <i class="fas fa-user-shield text-4xl text-white"></i>
+                    </div>
+                    <h1 class="text-3xl font-bold text-red-500">Admin Panel</h1>
+                    <p class="text-gray-400 mt-2">Authorized Access Only</p>
+                </div>
+                <div class="card border-red-500/30">
+                    <form onsubmit="handleAdminLogin(event)">
+                        <div class="mb-4">
+                            <label class="block text-sm text-gray-400 mb-2">Admin Username</label>
+                            <input type="text" class="input-field" id="adminUsername" placeholder="Admin username" required>
+                        </div>
+                        <div class="mb-6">
+                            <label class="block text-sm text-gray-400 mb-2">Admin Password</label>
+                            <input type="password" class="input-field" id="adminPassword" placeholder="Admin password" required>
+                        </div>
+                        <button type="submit" class="w-full bg-gradient-to-r from-red-600 to-red-800 text-white font-semibold py-3 rounded-xl hover:opacity-90 transition">
+                            <i class="fas fa-sign-in-alt mr-2"></i>Admin Login
+                        </button>
+                    </form>
+                    <div class="text-center mt-4">
+                        <button onclick="showPage('loginPage')" class="text-sm text-gray-500 hover:text-red-500 transition">
+                            <i class="fas fa-arrow-left mr-1"></i>Back to User Login
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--=================== HOME PAGE ===================-->
+    <div class="page" id="homePage">
+        <header class="glass-effect sticky top-0 z-50 border-b border-gray-800">
+            <div class="flex items-center justify-between p-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full theme-gradient flex items-center justify-center">
+                        <i class="fas fa-fire text-white"></i>
+                    </div>
+                    <div>
+                        <h1 class="font-bold gold-text">Super Earn Pro</h1>
+                        <p class="text-xs text-gray-400" id="welcomeUser">Welcome, User</p>
+                    </div>
+                </div>
+                <button onclick="openSidebar()" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-gray-700 transition">
+                    <i class="fas fa-bars text-red-500"></i>
+                </button>
+            </div>
+            <div class="px-4 pb-2">
+                <div class="cloud-sync-bar" id="cloudSyncBar">
+                    <span class="dot"></span>
+                    <span>Cloud Synced — Data Safe</span>
+                </div>
+            </div>
+        </header>
+
+        <div id="activationWarning" class="p-4" style="display: none;">
+            <div class="card border-red-500/30 bg-red-500/10">
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="w-12 h-12 rounded-full bg-red-500/20 flex items-center justify-center">
+                        <i class="fas fa-user-clock text-red-500 text-xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-red-500">Account Inactive</h3>
+                        <p class="text-sm text-gray-400">Activate your account to join matches</p>
+                    </div>
+                </div>
+                <button onclick="openActivationModal()" class="btn-gold w-full">
+                    <i class="fas fa-unlock"></i>Activate Now (Free)
+                </button>
+            </div>
+        </div>
+
+        <div class="p-4 relative z-10">
+            <!-- Wallet Section -->
+            <div class="grid grid-cols-2 gap-3 mb-6">
+                <div class="card text-center">
+                    <i class="fas fa-wallet text-2xl text-red-500 mb-2"></i>
+                    <p class="text-xs text-gray-400">Main Balance</p>
+                    <p class="text-xl font-bold gold-text" id="mainBalance">0 TK</p>
+                </div>
+                <div class="card text-center">
+                    <i class="fas fa-users text-2xl text-red-600 mb-2"></i>
+                    <p class="text-xs text-gray-400">Active Refers</p>
+                    <p class="text-xl font-bold text-red-500" id="activeRefers">0</p>
+                </div>
+            </div>
+
+            <!-- Refer Section -->
+            <div class="card mb-6">
+                <h3 class="font-semibold mb-4 flex items-center gap-2">
+                    <i class="fas fa-share-alt text-red-500"></i>Refer & Earn
+                </h3>
+                <div class="bg-gray-900 rounded-xl p-3 mb-4">
+                    <p class="text-xs text-gray-400 mb-1">Your Referral Link</p>
+                    <div class="flex items-center gap-2">
+                        <input type="text" class="input-field text-sm" id="referralLink" readonly>
+                        <button onclick="copyReferralLink()" class="btn-outline px-3 py-2" style="width: auto;"><i class="fas fa-copy"></i></button>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="text-center p-3 bg-red-500/10 rounded-xl">
+                        <p class="text-2xl font-bold text-red-500" id="activeRefCount">0</p>
+                        <p class="text-xs text-gray-400">Active Refer</p>
+                    </div>
+                    <div class="text-center p-3 bg-gray-500/10 rounded-xl">
+                        <p class="text-2xl font-bold text-gray-400" id="inactiveRefCount">0</p>
+                        <p class="text-xs text-gray-400">Inactive Refer</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tournaments Section -->
+            <div class="mb-20">
+                <h3 class="font-bold text-xl mb-4 flex items-center gap-2">
+                    <i class="fas fa-trophy text-red-500"></i> Live Tournaments
+                </h3>
+                <div id="tournamentContainer" class="space-y-4">
+                    <div class="loading-spinner"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Bottom Navigation -->
+        <div class="bottom-nav">
+            <div class="nav-item active" onclick="switchBottomNav('home', this)">
+                <i class="fas fa-home"></i><span>Home</span>
+            </div>
+            <div class="nav-item" onclick="showPage('myMatchesPage')">
+                <i class="fas fa-medal"></i><span>My Matches</span>
+            </div>
+            <div class="nav-item" onclick="openSupportLink()">
+                <i class="fas fa-headset"></i><span>Support</span>
+            </div>
+            <div class="nav-item" onclick="openSidebar()">
+                <i class="fas fa-bars"></i><span>Menu</span>
+            </div>
+        </div>
+    </div>
+
+    <!--=================== MY MATCHES PAGE ===================-->
+    <div class="page" id="myMatchesPage">
+        <header class="glass-effect sticky top-0 z-50 border-b border-gray-800 p-4">
+            <div class="flex items-center gap-3">
+                <button onclick="showPage('homePage')" class="text-gray-400"><i class="fas fa-arrow-left"></i></button>
+                <h1 class="font-bold text-lg">My Matches</h1>
+            </div>
+        </header>
+        <div class="p-4">
+            <div id="myMatchesContainer" class="space-y-4">
+                <!-- Loaded JS -->
+            </div>
+        </div>
+        <div class="bottom-nav">
+            <div class="nav-item" onclick="showPage('homePage')">
+                <i class="fas fa-home"></i><span>Home</span>
+            </div>
+            <div class="nav-item active" onclick="showPage('myMatchesPage')">
+                <i class="fas fa-medal"></i><span>My Matches</span>
+            </div>
+            <div class="nav-item" onclick="openSupportLink()">
+                <i class="fas fa-headset"></i><span>Support</span>
+            </div>
+            <div class="nav-item" onclick="openSidebar()">
+                <i class="fas fa-bars"></i><span>Menu</span>
+            </div>
+        </div>
+    </div>
+
+    <!--=================== ADMIN PANEL ===================-->
+    <div class="page" id="adminPanel">
+        <header class="glass-effect sticky top-0 z-50 border-b border-red-500/30">
+            <div class="flex items-center justify-between p-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-red-600 to-red-900 flex items-center justify-center">
+                        <i class="fas fa-user-shield text-white"></i>
+                    </div>
+                    <div>
+                        <h1 class="font-bold text-red-500">Admin Panel</h1>
+                        <p class="text-xs text-gray-400">Full Control Dashboard</p>
+                    </div>
+                </div>
+                <button onclick="adminLogout()" class="px-4 py-2 bg-red-500/20 text-red-500 rounded-lg text-sm hover:bg-red-500 hover:text-white transition">
+                    <i class="fas fa-sign-out-alt mr-1"></i>Logout
+                </button>
+            </div>
+        </header>
+
+        <div class="p-4 relative z-10">
+            <div class="flex overflow-x-auto gap-2 mb-6 pb-2">
+                <button class="admin-tab active px-4 py-2 bg-red-600 text-white rounded-lg text-sm whitespace-nowrap" onclick="switchAdminTab('overview')">Overview</button>
+                <button class="admin-tab px-4 py-2 bg-gray-800 text-gray-400 rounded-lg text-sm whitespace-nowrap" onclick="switchAdminTab('tournaments')">Matches</button>
+                <button class="admin-tab px-4 py-2 bg-gray-800 text-gray-400 rounded-lg text-sm whitespace-nowrap" onclick="switchAdminTab('users')">Users</button>
+                <button class="admin-tab px-4 py-2 bg-gray-800 text-gray-400 rounded-lg text-sm whitespace-nowrap" onclick="switchAdminTab('requests')">Requests</button>
+                <button class="admin-tab px-4 py-2 bg-gray-800 text-gray-400 rounded-lg text-sm whitespace-nowrap" onclick="switchAdminTab('settings')">Settings</button>
+            </div>
+
+            <div id="adminOverview" class="admin-content">
+                <div class="grid grid-cols-2 gap-3 mb-6">
+                    <div class="card text-center"><i class="fas fa-users text-3xl text-blue-500 mb-2"></i><p class="text-2xl font-bold" id="totalUsers">0</p><p class="text-xs text-gray-400">Total Users</p></div>
+                    <div class="card text-center"><i class="fas fa-user-check text-3xl text-green-500 mb-2"></i><p class="text-2xl font-bold text-green-500" id="activeUsers">0</p><p class="text-xs text-gray-400">Active Users</p></div>
+                    <div class="card text-center"><i class="fas fa-clock text-3xl text-yellow-500 mb-2"></i><p class="text-2xl font-bold text-yellow-500" id="pendingRequests">0</p><p class="text-xs text-gray-400">Pending Requests</p></div>
+                    <div class="card text-center"><i class="fas fa-trophy text-3xl text-red-500 mb-2"></i><p class="text-2xl font-bold text-red-500" id="totalMatches">0</p><p class="text-xs text-gray-400">Total Matches</p></div>
+                </div>
+                <div class="card mb-6">
+                    <h3 class="font-semibold mb-4">Update Notice (Welcome Popup)</h3>
+                    <textarea class="input-field mb-3" id="adminNotice" rows="3" placeholder="Enter welcome notice text..."></textarea>
+                    <button onclick="updateNotice()" class="btn-gold w-full">Update Notice</button>
+                </div>
+            </div>
+
+            <div id="adminTournaments" class="admin-content" style="display: none;">
+                <div class="card mb-4">
+                    <h3 class="font-semibold mb-4">Create New Match</h3>
+                    <div class="space-y-3">
+                        <div>
+                            <label class="text-xs text-gray-400">Match Title</label>
+                            <input type="text" class="input-field" id="tourTitle" placeholder="Enter match title...">
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="text-xs text-gray-400">Match Number (e.g. #5951)</label>
+                                <input type="text" class="input-field" id="tourMatchNum" placeholder="#5951">
+                            </div>
+                            <div>
+                                <label class="text-xs text-gray-400">Kill Prize (Per Kill)</label>
+                                <input type="text" class="input-field" id="tourKillPrize" placeholder="10 TK">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="text-xs text-gray-400">Match Notice (Top of Card)</label>
+                            <textarea class="input-field" id="tourNotice" rows="3" placeholder="Enter line by line notice..."></textarea>
+                        </div>
+
+                        <!-- Start Time (Real Time) -->
+                        <div>
+                            <label class="text-xs text-gray-400">Start Time (Date & Time)</label>
+                            <input type="datetime-local" class="input-field" id="tourStartTime">
+                            <p class="text-[10px] text-gray-500 mt-1">Set time correctly for countdown to work.</p>
+                        </div>
+
+                        <div>
+                            <label class="text-xs text-gray-400">Rules & Details</label>
+                            <textarea class="input-field" id="tourRules" rows="2" placeholder="Enter match rules, version, map info..."></textarea>
+                        </div>
+                        
+                        <div>
+                            <label class="text-xs text-gray-400">Prize Pool (One per line, e.g: 1st Winner Weekly, 2nd Winner 500TK)</label>
+                            <textarea class="input-field" id="tourPrize" rows="3" placeholder="1st Winner 1000 TK&#10;2nd Winner 500 TK&#10;3rd Winner 200 TK"></textarea>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-3">
+                             <input type="text" class="input-field" id="tourFee" placeholder="Entry Fee (e.g. 20 TK)">
+                             <input type="number" class="input-field" id="tourTarget" placeholder="Max Players (e.g. 48)">
+                        </div>
+                        <div class="grid grid-cols-3 gap-3">
+                            <select class="input-field" id="tourType">
+                                <option value="Solo">Solo</option>
+                                <option value="Duo">Duo</option>
+                                <option value="Squad">Squad</option>
+                            </select>
+                            <input type="text" class="input-field" id="tourMap" placeholder="Map (Bermuda)">
+                            <select class="input-field" id="tourVer">
+                                <option value="TPP">TPP</option>
+                                <option value="FPP">FPP</option>
+                            </select>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <select class="input-field" id="tourGmailReq">
+                                <option value="1">1 Gmail Required</option>
+                                <option value="2">2 Gmails Required</option>
+                            </select>
+                            <input type="text" class="input-field" id="tourGmailPassHint" placeholder="Gmail Pass Hint (e.g. Pro@123)">
+                        </div>
+                        <button onclick="addNewTournament()" class="btn-gold w-full">Create Match</button>
+                    </div>
+                </div>
+                <div class="card"><h3 class="font-semibold mb-4">Manage Matches</h3><div class="space-y-3" id="adminTournamentList">Loading...</div></div>
+            </div>
+
+            <div id="adminUsers" class="admin-content" style="display: none;">
+                <div class="mb-4"><input type="text" class="input-field" id="searchUser" placeholder="Search user by phone..." oninput="searchUsers()"></div>
+                <div class="space-y-3" id="usersList"></div>
+            </div>
+
+            <div id="adminRequests" class="admin-content" style="display: none;">
+                <div class="flex gap-2 mb-4 overflow-x-auto pb-2">
+                    <button class="request-filter active px-3 py-2 bg-red-600 text-white rounded-lg text-sm whitespace-nowrap" onclick="filterRequests('all')">All</button>
+                    <button class="request-filter px-3 py-2 bg-gray-800 text-gray-400 rounded-lg text-sm whitespace-nowrap" onclick="filterRequests('activation')">Activation</button>
+                    <button class="request-filter px-3 py-2 bg-gray-800 text-gray-400 rounded-lg text-sm whitespace-nowrap" onclick="filterRequests('tournament')">Match Join</button>
+                </div>
+                <div class="space-y-3" id="requestsList"></div>
+            </div>
+
+            <div id="adminSettings" class="admin-content" style="display: none;">
+                <div class="space-y-4">
+                    <div class="card">
+                        <h3 class="font-semibold mb-4">Admin Credentials</h3>
+                        <div class="space-y-3">
+                            <div><label class="text-xs text-gray-400">Username</label><input type="text" class="input-field" id="newAdminUsername" placeholder="New username"></div>
+                            <div><label class="text-xs text-gray-400">New Password</label><input type="password" class="input-field" id="newAdminPassword" placeholder="New password"></div>
+                        </div>
+                        <button onclick="updateAdminCredentials()" class="btn-gold mt-3 w-full">Update Credentials</button>
+                    </div>
+                    <div class="card">
+                        <h3 class="font-semibold mb-4">Support & Activation</h3>
+                        <div class="space-y-3">
+                            <div><label class="text-xs text-gray-400">Support Channel Link</label><input type="text" class="input-field" id="supportLink" placeholder="https://t.me/..."></div>
+                            <div><label class="text-xs text-gray-400">Activation Success Notice</label><input type="text" class="input-field" id="activationNoticeText" placeholder="Message shown after activation"></div>
+                        </div>
+                        <button onclick="saveGeneralSettings()" class="btn-gold mt-3 w-full">Save Settings</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--=================== SIDEBAR ===================-->
+    <div class="sidebar" id="sidebar">
+        <div class="p-4 border-b border-gray-800 flex items-center justify-between">
+            <h2 class="font-bold gold-text">Menu</h2>
+            <button onclick="closeSidebar()" class="w-8 h-8 rounded-full bg-gray-800 flex items-center justify-center"><i class="fas fa-times text-gray-400"></i></button>
+        </div>
+        <div class="py-2">
+            <div class="menu-item" onclick="openWithdrawModal()"><i class="fas fa-wallet text-cyan-500 w-6"></i><span>Withdraw</span></div>
+            <div class="menu-item" onclick="openHistoryModal()"><i class="fas fa-history text-orange-500 w-6"></i><span>Total History</span></div>
+            <div class="menu-item" onclick="openReferHistoryModal()"><i class="fas fa-users text-emerald-500 w-6"></i><span>Refer History</span></div>
+            <div class="menu-item" onclick="userLogout()"><i class="fas fa-sign-out-alt text-red-500 w-6"></i><span>Logout</span></div>
+        </div>
+    </div>
+
+    <!--=================== MODALS ===================-->
+    
+    <div class="modal" id="welcomeNoticeModal">
+        <div class="modal-content p-6 text-center">
+            <h3 class="text-xl font-bold text-red-500 mb-4">WELCOME NOTICE</h3>
+            <div id="welcomeNoticeContent" class="text-gray-300 text-sm mb-6 whitespace-pre-line"></div>
+            <button onclick="closeModal('welcomeNoticeModal')" class="btn-gold w-full">ACCEPT & PROCEED</button>
+        </div>
+    </div>
+
+    <div class="modal" id="activationModal">
+        <div class="modal-content p-6">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-xl font-bold gold-text">Account Activation</h3>
+                <button onclick="closeModal('activationModal')" class="text-gray-400 hover:text-white"><i class="fas fa-times text-xl"></i></button>
+            </div>
+            <div class="mb-6">
+                <p class="text-gray-400 mb-4">Activate your account for <span class="text-red-500 font-bold">FREE</span> to access tournaments.</p>
+                <button onclick="submitActivation()" class="btn-gold w-full"><i class="fas fa-paper-plane mr-2"></i>Request Activation</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="tournamentModal">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="p-5 border-b border-gray-800 bg-gray-900/50 sticky top-0 z-10">
+                <div class="flex items-center justify-between mb-1">
+                    <h3 class="text-xl font-bold text-white" id="tourModalTitle">Tournament Name</h3>
+                    <button onclick="closeModal('tournamentModal')" class="text-gray-400 hover:text-white"><i class="fas fa-times text-xl"></i></button>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-xs text-red-500 font-bold" id="tourModalType">SOLO</span>
+                    <span class="text-sm font-bold gold-text" id="tourModalPrize">Prize Pool Info</span>
+                </div>
+            </div>
+            
+            <div class="p-5" id="tourModalContent">
+                <!-- Dynamic Content -->
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="resultViewModal">
+        <div class="modal-content p-6">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-xl font-bold text-red-500">Match Results</h3>
+                <button onclick="closeModal('resultViewModal')" class="text-gray-400 hover:text-white"><i class="fas fa-times text-xl"></i></button>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="result-table w-full">
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Player Name</th>
+                            <th>Kill</th>
+                            <th>Prize</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resultTableBody">
+                        <!-- JS Populated -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="adminTournamentEditModal">
+        <div class="modal-content p-6">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-xl font-bold text-red-500">Manage Match</h3>
+                <button onclick="closeModal('adminTournamentEditModal')" class="text-gray-400 hover:text-white"><i class="fas fa-times text-xl"></i></button>
+            </div>
+            <div class="space-y-4 max-h-[80vh] overflow-y-auto pr-2">
+                <div class="p-3 bg-gray-900 rounded-xl">
+                    <h4 class="text-sm font-bold text-white mb-2" id="editTourTitle">Title</h4>
+                    <div class="grid grid-cols-2 gap-2 text-xs text-gray-400">
+                        <span>Target: <span id="editTourTarget" class="text-white">0</span></span>
+                        <span>Joined: <span id="editTourJoined" class="text-white">0</span></span>
+                    </div>
+                </div>
+
+                <div class="border-t border-gray-700 pt-4">
+                    <h4 class="font-bold text-white mb-3">Room Details</h4>
+                    <div class="grid grid-cols-2 gap-3 mb-3">
+                        <div><label class="text-xs text-gray-400">Room ID</label><input type="text" class="input-field text-sm" id="editRoomId" placeholder="ID"></div>
+                        <div><label class="text-xs text-gray-400">Password</label><input type="text" class="input-field text-sm" id="editRoomPass" placeholder="Pass"></div>
+                    </div>
+                    <button onclick="saveTournamentRoom()" class="btn-gold w-full text-sm">Save Room Details</button>
+                </div>
+
+                <div class="border-t border-gray-700 pt-4">
+                    <h4 class="font-bold text-white mb-3">Update Results</h4>
+                    <p class="text-xs text-gray-400 mb-2">Enter rank and prize for each player.</p>
+                    <div id="editTourPlayerList" class="space-y-2 max-h-60 overflow-y-auto mb-3">
+                        <!-- Player inputs generated here -->
+                    </div>
+                    <button onclick="saveTournamentResults()" class="btn-gold w-full text-sm bg-green-600 border-none">Publish Results</button>
+                </div>
+
+                <div class="border-t border-gray-700 pt-4">
+                    <h4 class="font-bold text-white mb-3">Actions</h4>
+                    <div class="flex gap-2">
+                        <button onclick="deleteMatch()" class="flex-1 bg-red-600 text-white py-2 rounded-lg text-sm font-bold">Delete Match</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="withdrawModal">
+        <div class="modal-content p-6">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-xl font-bold gold-text">Withdraw</h3>
+                <button onclick="closeModal('withdrawModal')" class="text-gray-400 hover:text-white"><i class="fas fa-times text-xl"></i></button>
+            </div>
+            <div id="withdrawContent"></div>
+        </div>
+    </div>
+
+    <div class="modal" id="historyModal">
+        <div class="modal-content p-6">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-xl font-bold gold-text">Total History</h3>
+                <button onclick="closeModal('historyModal')" class="text-gray-400 hover:text-white"><i class="fas fa-times text-xl"></i></button>
+            </div>
+            <div class="space-y-3 max-h-96 overflow-y-auto" id="historyContent"></div>
+        </div>
+    </div>
+    
+    <div class="modal" id="referHistoryModal">
+        <div class="modal-content p-6">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-xl font-bold gold-text">Refer History</h3>
+                <button onclick="closeModal('referHistoryModal')" class="text-gray-400 hover:text-white"><i class="fas fa-times text-xl"></i></button>
+            </div>
+            <div class="space-y-3 max-h-96 overflow-y-auto" id="referHistoryContent"></div>
+        </div>
+    </div>
+
+    <div id="toast" class="fixed bottom-20 left-1/2 -translate-x-1/2 px-6 py-3 rounded-xl text-white font-medium z-[3000] transition-all duration-300 opacity-0 translate-y-10 pointer-events-none shadow-lg"></div>
+
+    <!--=================== JAVASCRIPT ===================-->
+    <script>
+        // ===== FIREBASE CONFIG =====
+        const firebaseConfig = {
+            apiKey: "AIzaSyCaYMQ8dPl2rNb4a42Efne1KLa5hEMcIiU",
+            authDomain: "dijital-super-earn.firebaseapp.com",
+            projectId: "dijital-super-earn",
+            storageBucket: "dijital-super-earn.firebasestorage.app",
+            messagingSenderId: "789598784773",
+            appId: "1:789598784773:web:6e99b00d9fe9922590bb6c",
+            measurementId: "G-NFBVPD0DGF"
+        };
+        
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // ===== GLOBAL VARIABLES =====
+        let currentUser = null;
+        let appSettingsCache = null;
+        let cloudSyncInterval = null;
+        let currentEditingTourId = null;
+        let joinStep = 1;
+
+        // ===== GLOBAL TIMER VARIABLE =====
+        // We use a single interval to update all timers for better performance
+        let globalTimerInterval = null;
+
+        // ===== LIFETIME REGISTRATION LOCK (3 Years) =====
+        const LOCK_COOKIE_NAME = 'se_reg_lock_v3';
+        const LOCK_LS_KEY = 'se_device_reg_permanent_v3';
+
+        function setDeviceRegisteredLifetime() {
+            const ts = Date.now().toString();
+            localStorage.setItem(LOCK_LS_KEY, ts);
+            const maxAge = 94608000; // 3 Years
+            document.cookie = `${LOCK_COOKIE_NAME}=locked; max-age=${maxAge}; path=/; secure; samesite=strict`;
+            try {
+                const req = indexedDB.open('SuperEarnLockDB', 1);
+                req.onupgradeneeded = function(e) {
+                    const idb = e.target.result;
+                    if (!idb.objectStoreNames.contains('lock')) idb.createObjectStore('lock');
+                };
+                req.onsuccess = function(e) {
+                    const idb = e.target.result;
+                    if (idb.objectStoreNames.contains('lock')) {
+                        const tx = idb.transaction('lock', 'readwrite');
+                        tx.objectStore('lock').put(ts, 'registered');
+                    }
+                };
+            } catch(err) { console.log('IDB Error', err); }
+        }
+
+        async function isDeviceRegistered() {
+            if (localStorage.getItem(LOCK_LS_KEY)) return true;
+            if (document.cookie.split(';').some((item) => item.trim().startsWith(`${LOCK_COOKIE_NAME}=`))) return true;
+            return new Promise((resolve) => {
+                try {
+                    const req = indexedDB.open('SuperEarnLockDB', 1);
+                    req.onupgradeneeded = function(e) {
+                        const idb = e.target.result;
+                        if (!idb.objectStoreNames.contains('lock')) idb.createObjectStore('lock');
+                    };
+                    req.onsuccess = function(e) {
+                        const idb = e.target.result;
+                        if (idb.objectStoreNames.contains('lock')) {
+                            const tx = idb.transaction('lock', 'readonly');
+                            const getReq = tx.objectStore('lock').get('registered');
+                            getReq.onsuccess = function() { resolve(!!getReq.result); };
+                            getReq.onerror = function() { resolve(false); };
+                        } else { resolve(false); }
+                    };
+                    req.onerror = function() { resolve(false); };
+                } catch(err) { resolve(false); }
+            });
+        }
+
+        // ===== CLOUD DATA VERIFICATION =====
+        async function verifyCloudData(userId) {
+            try {
+                const doc = await db.collection('users').doc(userId).get();
+                if (!doc.exists) return false;
+                if (!doc.data().joinedTournaments) {
+                    await db.collection('users').doc(userId).update({ joinedTournaments: [] });
+                }
+                return true;
+            } catch(e) { return false; }
+        }
+
+        function startCloudPing() {
+            if (cloudSyncInterval) clearInterval(cloudSyncInterval);
+            cloudSyncInterval = setInterval(async () => {
+                if (!currentUser) return;
+                try {
+                    const doc = await db.collection('users').doc(currentUser.id).get();
+                    if (doc.exists) {
+                        const bar = document.getElementById('cloudSyncBar');
+                        if (bar) {
+                            bar.innerHTML = '<span class="dot"></span><span>Cloud Synced — Data Safe</span>';
+                            bar.style.color = '#FF0000';
+                        }
+                    } else {
+                        const bar = document.getElementById('cloudSyncBar');
+                        if (bar) {
+                            bar.innerHTML = '<span class="dot" style="background:#EF4444;animation:none"></span><span style="color:#EF4444">Cloud Sync Issue</span>';
+                        }
+                    }
+                } catch(e) {
+                    const bar = document.getElementById('cloudSyncBar');
+                    if (bar) {
+                        bar.innerHTML = '<span class="dot" style="background:#F59E0B;animation:none"></span><span style="color:#F59E0B">Reconnecting...</span>';
+                    }
+                }
+            }, 30000);
+        }
+
+        function stopCloudPing() {
+            if (cloudSyncInterval) { clearInterval(cloudSyncInterval); cloudSyncInterval = null; }
+        }
+
+        // ===== GLOBAL COUNTDOWN TIMER FUNCTION =====
+        // This function runs every second and updates ALL visible countdowns
+        function startGlobalTimer() {
+            if (globalTimerInterval) clearInterval(globalTimerInterval);
+            
+            globalTimerInterval = setInterval(() => {
+                const now = new Date().getTime();
+                
+                // Find all elements with data-start-time attribute
+                const timerElements = document.querySelectorAll('[data-start-time]');
+                
+                timerElements.forEach(el => {
+                    const startTime = parseInt(el.getAttribute('data-start-time'));
+                    
+                    if (!isNaN(startTime)) {
+                        const diff = startTime - now;
+                        
+                        if (diff <= 0) {
+                            el.innerText = "Match Started";
+                            el.style.color = "#10B981"; // Green when started
+                        } else {
+                            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+                            
+                            let text = "";
+                            if(days > 0) text += `${days} Days `;
+                            text += `${hours} Hour ${minutes} Minute ${seconds} Second`;
+                            
+                            el.innerText = text;
+                        }
+                    }
+                });
+            }, 1000);
+        }
+
+        // ===== UTILITY =====
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'fixed bottom-20 left-1/2 -translate-x-1/2 px-6 py-3 rounded-xl text-white font-medium z-[3000] transition-all duration-300';
+            if (type === 'success') toast.classList.add('bg-red-600');
+            else if (type === 'error') toast.classList.add('bg-gray-700');
+            else if (type === 'warning') toast.classList.add('bg-yellow-500', 'text-black');
+            else toast.classList.add('bg-blue-500');
+            toast.classList.remove('opacity-0', 'translate-y-10', 'pointer-events-none');
+            setTimeout(() => { toast.classList.add('opacity-0', 'translate-y-10', 'pointer-events-none'); }, 3000);
+        }
+
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+            if(pageId === 'myMatchesPage') loadMyMatches();
+        }
+
+        function switchBottomNav(tab, el) {
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+            el.classList.add('active');
+            if(tab === 'home') showPage('homePage');
+        }
+
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('bn-BD').format(amount) + ' TK';
+        }
+
+        // ===== PARTICLES =====
+        function createParticles() {
+            const container = document.getElementById('particles');
+            if (!container) return;
+            container.innerHTML = '';
+            for (let i = 0; i < 20; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 15 + 's';
+                particle.style.animationDuration = (15 + Math.random() * 10) + 's';
+                container.appendChild(particle);
+            }
+        }
+        createParticles();
+
+        // ===== AUTH =====
+        async function switchAuthTab(tab) {
+            const loginForm = document.getElementById('loginForm');
+            const registerForm = document.getElementById('registerForm');
+            const loginTab = document.getElementById('loginTabBtn');
+            const regTab = document.getElementById('registerTabBtn');
+            
+            if (tab === 'register') {
+                const locked = await isDeviceRegistered();
+                if (locked) {
+                    showToast('এই ডিভাইসে ইতিমধ্যে একাউন্ট তৈরি করা হয়েছে!', 'error');
+                    return;
+                }
+            }
+            loginTab.classList.remove('active'); regTab.classList.remove('active');
+            if (tab === 'login') { loginForm.style.display = 'block'; registerForm.style.display = 'none'; loginTab.classList.add('active'); }
+            else { loginForm.style.display = 'none'; registerForm.style.display = 'block'; regTab.classList.add('active'); }
+        }
+
+        async function handleRegister(e) {
+            e.preventDefault();
+            const name = document.getElementById('regName').value.trim();
+            const phone = document.getElementById('regPhone').value.trim();
+            const password = document.getElementById('regPassword').value;
+            const referralCode = document.getElementById('regReferral').value.trim().toUpperCase();
+            
+            const locked = await isDeviceRegistered();
+            if (locked) { showToast('এই ডিভাইসে রেজিস্ট্রেশন সারাজীবনের জন্য বন্ধ!', 'error'); return; }
+
+            const phoneCheck = await db.collection('users').where('phone', '==', phone).get();
+            if (!phoneCheck.empty) { showToast('এই নম্বর দিয়ে ইতিমধ্যে রেজিস্ট্রেশন করা হয়েছে!', 'error'); return; }
+            
+            const generateReferralCode = () => {
+                const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+                let code = 'REF';
+                for (let i = 0; i < 5; i++) code += chars.charAt(Math.floor(Math.random() * chars.length));
+                return code;
+            };
+
+            const newUser = {
+                name, phone, password,
+                referralCode: generateReferralCode(),
+                referredBy: referralCode || null,
+                isActive: false, 
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                wallets: { main: 0, refer: 0 }, 
+                stats: { activeRefers: 0, inactiveRefers: 0, totalRefers: 0 },
+                joinedTournaments: [] 
+            };
+            
+            await db.collection('users').add(newUser);
+            
+            if (referralCode) {
+                const referrerSnap = await db.collection('users').where('referralCode', '==', referralCode).get();
+                if (!referrerSnap.empty) {
+                    await referrerSnap.docs[0].ref.update({
+                        'stats.totalRefers': firebase.firestore.FieldValue.increment(1),
+                        'stats.inactiveRefers': firebase.firestore.FieldValue.increment(1)
+                    });
+                }
+            }
+            
+            setDeviceRegisteredLifetime();
+            showToast('রেজিস্ট্রেশন সফল!', 'success');
+            switchAuthTab('login');
+            
+            const regBtn = document.getElementById('registerTabBtn');
+            regBtn.disabled = true;
+            regBtn.textContent = 'Registered';
+        }
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            const phone = document.getElementById('loginPhone').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            
+            const snapshot = await db.collection('users').where('phone', '==', phone).where('password', '==', password).get();
+            if (snapshot.empty) { showToast('ফোন নম্বর বা পাসওয়ার্ড ভুল!', 'error'); return; }
+            
+            const userDoc = snapshot.docs[0];
+            await verifyCloudData(userDoc.id);
+            
+            const freshDoc = await db.collection('users').doc(userDoc.id).get();
+            currentUser = { id: freshDoc.id, ...freshDoc.data() };
+            
+            localStorage.setItem('currentUserId', currentUser.id);
+            await loadUserDashboard();
+            showToast('লগইন সফল!', 'success');
+        }
+
+        async function handleAdminLogin(e) {
+            e.preventDefault();
+            const username = document.getElementById('adminUsername').value.trim();
+            const password = document.getElementById('adminPassword').value;
+            const doc = await db.collection('settings').doc('admin').get();
+            const adminData = doc.exists ? doc.data() : { username: 'admin', password: 'admin123' };
+            if (username === adminData.username && password === adminData.password) {
+                localStorage.setItem('adminLoggedIn', 'true');
+                loadAdminPanel();
+                showToast('Admin লগইন সফল!', 'success');
+            } else { showToast('Invalid credentials!', 'error'); }
+        }
+
+        function userLogout() {
+            currentUser = null;
+            localStorage.removeItem('currentUserId');
+            stopCloudPing();
+            if(globalTimerInterval) clearInterval(globalTimerInterval);
+            closeSidebar();
+            showPage('loginPage');
+            showToast('Logout সফল!', 'success');
+        }
+
+        function adminLogout() {
+            localStorage.removeItem('adminLoggedIn');
+            stopCloudPing();
+            showPage('loginPage');
+            showToast('Admin Logout সফল!', 'success');
+        }
+
+        // ===== USER DASHBOARD =====
+        async function loadUserDashboard() {
+            showPage('homePage');
+            document.getElementById('welcomeUser').textContent = `Welcome, ${currentUser.name}`;
+            
+            const warning = document.getElementById('activationWarning');
+            warning.style.display = currentUser.isActive ? 'none' : 'block';
+            
+            const settingsDoc = await db.collection('settings').doc('app').get();
+            appSettingsCache = settingsDoc.exists ? settingsDoc.data() : {};
+            
+            if (appSettingsCache.notice) {
+                const noticeContent = document.getElementById('welcomeNoticeContent');
+                noticeContent.textContent = appSettingsCache.notice;
+                document.getElementById('welcomeNoticeModal').classList.add('active');
+            }
+            
+            // UPDATED: Referral Link
+            document.getElementById('referralLink').value = `https://t.me/LGT_SPORTS_TRN_BOT?startapp=${currentUser.referralCode}`;
+            
+            await updateUserStats();
+            updateWalletDisplay();
+            
+            listenToTournaments();
+            startCloudPing();
+            
+            // START GLOBAL TIMER
+            startGlobalTimer();
+        }
+
+        async function updateUserStats() {
+            if (!currentUser) return;
+            
+            db.collection('users').doc(currentUser.id).onSnapshot(doc => {
+                if (doc.exists) {
+                    currentUser = { id: doc.id, ...doc.data() };
+                    if (!currentUser.joinedTournaments) currentUser.joinedTournaments = [];
+                    
+                    document.getElementById('activeRefers').textContent = currentUser.stats.activeRefers;
+                    document.getElementById('activeRefCount').textContent = currentUser.stats.activeRefers;
+                    document.getElementById('inactiveRefCount').textContent = currentUser.stats.inactiveRefers;
+                    updateWalletDisplay();
+                }
+            });
+        }
+
+        function updateWalletDisplay() {
+            if (!currentUser) return;
+            const mainBalance = (currentUser.wallets.refer || 0); 
+            document.getElementById('mainBalance').textContent = formatCurrency(mainBalance);
+        }
+
+        // ===== TOURNAMENT SYSTEM WITH 100% WORKING TIMER =====
+        
+        function getFormattedDateText(dateObj) {
+            if(!dateObj || isNaN(dateObj.getTime())) return 'Time Not Set';
+            const options = { year: 'numeric', month: 'numeric', day: 'numeric', weekday: 'long', hour: 'numeric', minute: 'numeric', hour12: true };
+            return dateObj.toLocaleString('en-US', options).replace(',', '');
+        }
+
+        function listenToTournaments() {
+            const container = document.getElementById('tournamentContainer');
+
+            // FIXED: No orderBy to ensure all matches are visible regardless of startTime
+            db.collection('tournaments').where('status', '==', 'open').onSnapshot(snapshot => {
+                container.innerHTML = ''; 
+                
+                if (snapshot.empty) {
+                    container.innerHTML = '<div class="text-center text-gray-500 py-8">বর্তমানে কোনো লাইভ ম্যাচ নেই।</div>';
+                    return;
+                }
+
+                snapshot.forEach(doc => {
+                    const t = doc.data();
+                    const joined = currentUser.joinedTournaments && currentUser.joinedTournaments.includes(doc.id);
+                    const progress = Math.min((t.currentPlayers / t.maxPlayers) * 100, 100);
+                    const cardId = `t-card-${doc.id}`;
+
+                    // FIXED: Robust Date Handling
+                    let displayDateText = 'Time Not Set';
+                    let startTimeMs = 0;
+                    
+                    if (t.startTime) {
+                        // Check if it's a Firestore Timestamp
+                        if (t.startTime.toDate) {
+                            const dateObj = t.startTime.toDate();
+                            displayDateText = getFormattedDateText(dateObj);
+                            startTimeMs = dateObj.getTime();
+                        } else if (typeof t.startTime === 'string') {
+                            // Fallback for string dates (though admin now saves as Timestamp)
+                            const dateObj = new Date(t.startTime);
+                            if(!isNaN(dateObj.getTime())) {
+                                displayDateText = getFormattedDateText(dateObj);
+                                startTimeMs = dateObj.getTime();
+                            }
+                        }
+                    }
+
+                    // Parse Prize Pool Lines
+                    const prizeLines = t.prizePool ? t.prizePool.split('\n') : [];
+                    let prizeHtml = '';
+                    prizeLines.forEach(line => {
+                        if(line.trim()) {
+                            const parts = line.split(' ');
+                            const rank = parts[0] || 'Rank';
+                            const desc = parts.slice(1).join(' ') || 'Prize';
+                            prizeHtml += `
+                                <div class="prize-row">
+                                    <span><span class="prize-rank">${rank}</span> <span class="text-gray-400 text-xs">${desc}</span></span>
+                                </div>`;
+                        }
+                    });
+                    if(!prizeHtml) prizeHtml = '<p class="text-center text-gray-500 text-xs">No prizes listed.</p>';
+
+                    // Player List Logic
+                    let playersHtml = '<p class="text-center text-gray-500 text-xs">Join to see players</p>';
+                    if(joined && t.players && t.players.length > 0) {
+                        playersHtml = t.players.map(p => `
+                            <div class="flex justify-between items-center py-1 border-b border-gray-800 last:border-0">
+                                <span class="text-white text-xs font-medium truncate w-3/4">${p.gameIdName}</span>
+                            </div>
+                        `).join('');
+                    } else if (joined) {
+                        playersHtml = '<p class="text-center text-gray-500 text-xs">Waiting for players...</p>';
+                    }
+
+                    // Room Logic
+                    let roomHtml = '<p class="text-center text-gray-500 text-xs">Join to see details</p>';
+                    if(joined) {
+                        if(t.roomId && t.roomPassword) {
+                            roomHtml = `
+                                <div class="room-box">
+                                    <div class="room-row">
+                                        <span class="room-label">ID</span>
+                                        <span class="room-val text-yellow-400 select-all">${t.roomId}</span>
+                                    </div>
+                                    <div class="room-row">
+                                        <span class="room-label">PASS</span>
+                                        <span class="room-val text-white select-all">${t.roomPassword}</span>
+                                    </div>
+                                </div>`;
+                        } else {
+                            roomHtml = '<p class="text-center text-yellow-500 text-xs"><i class="fas fa-lock"></i> Waiting for Admin...</p>';
+                        }
+                    }
+
+                    // Construct Card HTML
+                    const html = `
+                        <div class="tournament-card" id="${cardId}">
+                            <div class="t-card-header">
+                                <span class="t-date" style="font-size: 11px; color: #fff;">${displayDateText}</span>
+                                <span class="t-match-id">#${t.matchNumber || '----'}</span>
+                            </div>
+
+                            ${t.notice ? `<div class="t-card-notice">${t.notice}</div>` : ''}
+
+                            <div class="t-stats-grid">
+                                <div class="t-stat-item">
+                                    <div class="t-stat-label">FEE</div>
+                                    <div class="t-stat-val">${t.entryFee || 'Free'}</div>
+                                </div>
+                                <div class="t-stat-item">
+                                    <div class="t-stat-label">PRIZE</div>
+                                    <div class="t-stat-val gold">${t.prizePool ? 'See Prize' : 'TBA'}</div>
+                                </div>
+                                <div class="t-stat-item">
+                                    <div class="t-stat-label">KILL</div>
+                                    <div class="t-stat-val green">${t.killPrize || '0'}</div>
+                                </div>
+                            </div>
+
+                            <div class="t-info-grid">
+                                <div class="t-info-item">
+                                    <div class="t-info-label">TYPE</div>
+                                    <div class="t-info-val">${t.type || 'Solo'}</div>
+                                </div>
+                                <div class="t-info-item">
+                                    <div class="t-info-label">MAP</div>
+                                    <div class="t-info-val">${t.map || 'Classic'}</div>
+                                </div>
+                                <div class="t-info-item">
+                                    <div class="t-info-label">VER</div>
+                                    <div class="t-info-val">${t.ver || 'TPP'}</div>
+                                </div>
+                            </div>
+
+                            <div class="t-progress-area">
+                                <div class="t-player-count">
+                                    <span>${t.currentPlayers || 0} Joined</span>
+                                    <span>${t.maxPlayers || 0} Slots</span>
+                                </div>
+                                <div class="t-progress-bar">
+                                    <div class="t-progress-fill" style="width: ${progress}%"></div>
+                                </div>
+                            </div>
+
+                            <div class="t-tabs-container">
+                                <div class="t-tabs">
+                                    <div class="t-tab active" onclick="switchCardTab(event, '${doc.id}', 'join')">Join</div>
+                                    <div class="t-tab" onclick="switchCardTab(event, '${doc.id}', 'players')">Player</div>
+                                    <div class="t-tab" onclick="switchCardTab(event, '${doc.id}', 'room')">Room</div>
+                                    <div class="t-tab" onclick="switchCardTab(event, '${doc.id}', 'prizes')">Prize</div>
+                                </div>
+                            </div>
+
+                            <div id="tab-join-${doc.id}" class="t-tab-content active" style="min-height: auto; text-align: center;">
+                                <button onclick="openTournamentModal('${doc.id}')" class="btn-gold w-full" style="padding: 8px; font-size: 13px;">
+                                    ${joined ? 'VIEW / UPDATE DETAILS' : 'JOIN NOW'}
+                                </button>
+                            </div>
+
+                            <div id="tab-players-${doc.id}" class="t-tab-content" style="display:none;">
+                                ${playersHtml}
+                            </div>
+
+                            <div id="tab-room-${doc.id}" class="t-tab-content" style="display:none;">
+                                ${roomHtml}
+                            </div>
+
+                            <div id="tab-prizes-${doc.id}" class="t-tab-content" style="display:none;">
+                                ${prizeHtml}
+                            </div>
+
+                            <!-- FIXED: Added data-start-time attribute for Global Timer -->
+                            <div class="t-countdown-footer">
+                                <span class="cd-label">Starts In:</span>
+                                <span class="cd-time" id="timer-${doc.id}" data-start-time="${startTimeMs}">Loading...</span>
+                            </div>
+                        </div>
+                    `;
+                    container.innerHTML += html;
+                });
+            });
+        }
+
+        window.switchCardTab = function(e, tourId, tabName) {
+            const card = e.target.closest('.tournament-card');
+            card.querySelectorAll('.t-tab').forEach(b => b.classList.remove('active'));
+            e.target.classList.add('active');
+            
+            card.querySelectorAll('.t-tab-content').forEach(c => {
+                c.style.display = 'none';
+                c.classList.remove('active');
+            });
+            
+            const target = document.getElementById(`tab-${tabName}-${tourId}`);
+            if(target) {
+                target.style.display = 'block';
+                target.classList.add('active');
+            }
+        };
+
+        async function openTournamentModal(tourId) {
+            if (!currentUser) return;
+
+            if (!currentUser.isActive) {
+                showToast("Account activation required!", 'error');
+                closeModal('tournamentModal');
+                openActivationModal();
+                return;
+            }
+
+            const tourDoc = await db.collection('tournaments').doc(tourId).get();
+            if (!tourDoc.exists) return;
+            const t = tourDoc.data();
+            const joined = currentUser.joinedTournaments && currentUser.joinedTournaments.includes(tourId);
+
+            joinStep = 1;
+            window.currentTourId = tourId; 
+
+            document.getElementById('tourModalTitle').textContent = t.title;
+            document.getElementById('tourModalType').textContent = t.type || 'SOLO';
+            document.getElementById('tourModalPrize').textContent = t.prizePool || 'Check Rules';
+            
+            const contentDiv = document.getElementById('tourModalContent');
+            contentDiv.innerHTML = '<div class="loading-spinner"></div>';
+            document.getElementById('tournamentModal').classList.add('active');
+
+            if (joined) {
+                const reqSnap = await db.collection('requests')
+                    .where('userId', '==', currentUser.id)
+                    .where('type', '==', 'tournament_join')
+                    .where('tournamentId', '==', tourId)
+                    .limit(1)
+                    .get();
+
+                if (!reqSnap.empty) {
+                    const req = reqSnap.docs[0].data();
+                    if (req.status === 'pending') {
+                        contentDiv.innerHTML = `
+                            <div class="text-center py-6">
+                                <i class="fas fa-hourglass-half text-4xl text-yellow-500 mb-3"></i>
+                                <h3 class="text-lg font-bold">Request Pending</h3>
+                                <p class="text-gray-400 text-sm mt-2">Admin is reviewing your details.</p>
+                            </div>`;
+                    } else if (req.status === 'approved') {
+                        let roomHtml = '';
+                        if (t.roomId && t.roomPassword) {
+                            roomHtml = `
+                                <div class="bg-red-500/10 border border-red-500/30 rounded-xl p-4 mb-4 text-center">
+                                    <p class="text-xs text-gray-400 uppercase tracking-wide mb-1">Room ID</p>
+                                    <p class="text-2xl font-bold text-white select-all mb-2">${t.roomId}</p>
+                                    <p class="text-xs text-gray-400 uppercase tracking-wide mb-1">Password</p>
+                                    <p class="text-xl font-bold text-white select-all">${t.roomPassword}</p>
+                                </div>
+                            `;
+                        } else {
+                            roomHtml = `
+                                <div class="room-access-denied">
+                                    <i class="fas fa-lock text-2xl text-red-400 mb-2"></i>
+                                    <h4 class="font-bold text-red-400">Access Denied</h4>
+                                    <p class="text-xs text-gray-400 mt-1">Room details will appear here shortly.</p>
+                                </div>
+                            `;
+                        }
+
+                        let resultButtonHtml = '';
+                        if (t.resultsPublished) {
+                            resultButtonHtml = `<button onclick="viewMatchResults('${tourId}')" class="btn-gold w-full mt-3 bg-green-600"><i class="fas fa-trophy mr-2"></i>View Results</button>`;
+                        }
+
+                        contentDiv.innerHTML = `
+                            ${roomHtml}
+                            <div class="bg-gray-900 rounded-xl p-4">
+                                <div class="flex justify-between items-center mb-3">
+                                    <h4 class="font-bold text-sm">Players Joined</h4>
+                                    <span class="text-xs text-red-500">${t.currentPlayers}/${t.maxPlayers}</span>
+                                </div>
+                                <div id="modalPlayerList" class="space-y-2 max-h-60 overflow-y-auto">Loading...</div>
+                            </div>
+                            ${resultButtonHtml}
+                        `;
+                        loadPlayersInModal(tourId);
+                    } else {
+                        contentDiv.innerHTML = `
+                            <div class="text-center py-6">
+                                <i class="fas fa-times-circle text-4xl text-red-500 mb-3"></i>
+                                <h3 class="text-lg font-bold text-red-500">Request Rejected</h3>
+                                <p class="text-gray-400 text-sm mt-2">Incorrect details provided.</p>
+                                <button onclick="resetTournamentJoin('${tourId}')" class="btn-gold mt-4 px-4">Try Again</button>
+                            </div>`;
+                    }
+                }
+            } else {
+                renderJoinStep(t, tourId);
+            }
+        }
+
+        function renderJoinStep(t, tourId) {
+            const contentDiv = document.getElementById('tourModalContent');
+            const isFull = t.currentPlayers >= t.maxPlayers;
+            
+            if (isFull) {
+                contentDiv.innerHTML = `<div class="text-center text-red-500 font-bold py-8">MATCH FULL</div>`;
+                return;
+            }
+
+            const stepHtml = `
+                <div class="step-indicator mb-6">
+                    <div class="step ${joinStep >= 1 ? 'active' : ''}">1</div>
+                    <div class="step ${joinStep >= 2 ? 'active' : ''}">2</div>
+                </div>
+            `;
+
+            if (joinStep === 1) {
+                let inputsHtml = '';
+                
+                if (t.requiredGmails == 2) {
+                    inputsHtml += `
+                        <div class="mb-3">
+                            <label class="text-sm text-gray-400 mb-2 block">Gmail 1</label>
+                            <input type="email" class="input-field" id="joinGmail1" placeholder="example1@gmail.com">
+                        </div>
+                        <div class="mb-3">
+                            <label class="text-sm text-gray-400 mb-2 block">Gmail 2</label>
+                            <input type="email" class="input-field" id="joinGmail2" placeholder="example2@gmail.com">
+                        </div>`;
+                } else {
+                    inputsHtml += `
+                        <div class="mb-3">
+                            <label class="text-sm text-gray-400 mb-2 block">Gmail Address</label>
+                            <input type="email" class="input-field" id="joinGmail1" placeholder="example@gmail.com">
+                        </div>`;
+                }
+
+                inputsHtml += `
+                    <div class="mb-4">
+                        <label class="text-sm text-gray-400 mb-2 block">Gmail Password</label>
+                        <input type="password" class="input-field" id="joinGmailPass" placeholder="Enter Gmail Password">
+                    </div>
+                `;
+
+                const passHint = t.gmailPassHint || "No hint provided";
+
+                contentDiv.innerHTML = `
+                    ${stepHtml}
+                    <div class="bg-yellow-500/10 border border-yellow-500/30 p-3 rounded-xl mb-4 text-sm text-yellow-500 text-center">
+                        <i class="fas fa-exclamation-triangle mr-1"></i> 
+                        Create Gmail using the password below and submit here.
+                    </div>
+                    
+                    <div class="bg-gray-900 p-3 rounded-xl mb-4 text-center border border-red-500/30">
+                        <p class="text-xs text-gray-400 uppercase">Gmail Password Hint</p>
+                        <p class="text-xl font-bold text-red-500 tracking-widest select-all">${passHint}</p>
+                    </div>
+
+                    <form onsubmit="nextJoinStep(event, '${tourId}', ${t.requiredGmails})">
+                        ${inputsHtml}
+                        <button type="submit" class="btn-gold w-full">Next Step <i class="fas fa-arrow-right ml-2"></i></button>
+                    </form>
+                `;
+            } else {
+                contentDiv.innerHTML = `
+                    ${stepHtml}
+                    <div class="bg-gray-900 p-3 rounded-xl mb-4 text-xs text-gray-400">
+                        <p><strong>Entry Fee:</strong> ${t.entryFee || 'Free'}</p>
+                        <p><strong>Map:</strong> ${t.map || 'See Rules'}</p>
+                    </div>
+
+                    <form onsubmit="submitTournamentJoin(event, '${tourId}')">
+                        <div class="mb-3">
+                            <label class="text-sm text-gray-400 mb-2 block">Game ID Name (In-Game Name)</label>
+                            <input type="text" class="input-field" id="joinGameId" placeholder="e.g. ProGamer123" required>
+                        </div>
+                        <div class="flex gap-2">
+                            <button type="button" onclick="prevJoinStep()" class="btn-outline flex-1">Back</button>
+                            <button type="submit" class="btn-gold flex-1">Join Match</button>
+                        </div>
+                    </form>
+                `;
+            }
+        }
+
+        function nextJoinStep(e, tourId, count) {
+            e.preventDefault();
+            const g1 = document.getElementById('joinGmail1').value.trim();
+            const g2 = count === 2 ? document.getElementById('joinGmail2').value.trim() : null;
+            const gPass = document.getElementById('joinGmailPass').value.trim();
+            
+            if (!g1 || (count === 2 && !g2) || !gPass) { 
+                showToast('Provide all Gmails and Password!', 'error'); 
+                return; 
+            }
+            joinStep = 2;
+            
+            window.tempJoinData = { g1, g2, gPass };
+            
+            db.collection('tournaments').doc(tourId).get().then(doc => {
+                renderJoinStep(doc.data(), tourId);
+            });
+        }
+
+        function prevJoinStep() {
+            joinStep = 1;
+            if(window.currentTourId) {
+                db.collection('tournaments').doc(window.currentTourId).get().then(doc => {
+                    renderJoinStep(doc.data(), window.currentTourId);
+                });
+            }
+        }
+
+        async function submitTournamentJoin(e, tourId) {
+            e.preventDefault();
+            const gameId = document.getElementById('joinGameId').value.trim();
+            if (!gameId) { showToast('Game ID required!', 'error'); return; }
+            
+            const g1 = window.tempJoinData.g1;
+            const g2 = window.tempJoinData.g2;
+            const gPass = window.tempJoinData.gPass;
+            
+            let detailsStr = '';
+            if (g2) {
+                detailsStr = `Gmail 1: ${g1}, Gmail 2: ${g2}, Pass: ${gPass}, GameID: ${gameId}`;
+            } else {
+                detailsStr = `Gmail: ${g1}, Pass: ${gPass}, GameID: ${gameId}`;
+            }
+            
+            await db.collection('requests').add({
+                type: 'tournament_join',
+                tournamentId: tourId,
+                userId: currentUser.id,
+                userName: currentUser.name,
+                userPhone: currentUser.phone,
+                gameIdName: gameId,
+                details: detailsStr,
+                status: 'pending',
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+
+            showToast('জয়েন রিকোয়েস্ট সেন্ড হয়েছে!', 'success');
+            closeModal('tournamentModal');
+        }
+
+        async function resetTournamentJoin(tourId) {
+            openTournamentModal(tourId);
+        }
+
+        async function loadPlayersInModal(tourId) {
+            const listDiv = document.getElementById('modalPlayerList');
+            const tourDoc = await db.collection('tournaments').doc(tourId).get();
+            const t = tourDoc.data();
+            const players = t.players || []; 
+
+            if (players.length === 0) { 
+                listDiv.innerHTML = '<p class="text-center text-xs text-gray-500">No players joined yet</p>'; 
+                return; 
+            }
+            
+            listDiv.innerHTML = players.map(p => `
+                <div class="flex justify-between items-center text-xs border-b border-gray-800 py-2 last:border-0">
+                    <span class="text-white font-bold">${p.gameIdName || p.name}</span>
+                    <span class="text-gray-500 text-[10px]">${p.phone}</span>
+                </div>
+            `).join('');
+        }
+
+        // ===== MY MATCHES (UPDATED LOGIC) =====
+        async function loadMyMatches() {
+            const container = document.getElementById('myMatchesContainer');
+            container.innerHTML = '<div class="loading-spinner"></div>';
+            
+            if(!currentUser || !currentUser.joinedTournaments) {
+                container.innerHTML = '<p class="text-center text-gray-500">No matches joined.</p>';
+                return;
+            }
+
+            const joinedIds = currentUser.joinedTournaments.slice(-10).reverse(); 
+            
+            const matchesPromises = joinedIds.map(id => db.collection('tournaments').doc(id).get());
+            const snapshots = await Promise.all(matchesPromises);
+
+            if(snapshots.length === 0) {
+                 container.innerHTML = '<p class="text-center text-gray-500">No matches found.</p>';
+                 return;
+            }
+
+            let htmlContent = '';
+            let count = 0;
+
+            for(const snap of snapshots) {
+                if(count >= 10) break; 
+                
+                if (snap.exists) {
+                    const m = snap.data();
+                    
+                    // ================== UPDATED LOGIC ==================
+                    // If the match is deleted by Admin AND results are NOT published, 
+                    // we skip it (don't show in history). 
+                    // If results ARE published, we keep it in history.
+                    if (m.status === 'deleted' && !m.resultsPublished) {
+                        continue; 
+                    }
+                    // ==================================================
+
+                    const isCompleted = m.status === 'completed' || m.status === 'deleted';
+                    
+                    let resultHtml = '';
+                    if (m.resultsPublished) {
+                        const myPlayerEntry = m.players ? m.players.find(p => p.userId === currentUser.id) : null;
+                        const myRank = myPlayerEntry && myPlayerEntry.rank ? `Rank #${myPlayerEntry.rank}` : 'N/A';
+                        const prize = myPlayerEntry && myPlayerEntry.prize ? myPlayerEntry.prize : '0 TK';
+                        
+                        resultHtml = `
+                            <div class="bg-green-500/10 border border-green-500/30 p-3 rounded-lg mt-2">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-green-400 font-bold text-sm">Result Published</span>
+                                    <button onclick="viewMatchResults('${snap.id}')" class="text-xs bg-white text-black px-2 py-1 rounded font-bold">View All</button>
+                                </div>
+                                <div class="mt-2 text-xs text-gray-300">Your Rank: <span class="text-white font-bold">${myRank}</span> | Prize: <span class="text-white font-bold">${prize}</span></div>
+                            </div>
+                        `;
+                    }
+
+                    htmlContent += `
+                    <div class="card">
+                        <div class="flex justify-between items-start mb-2">
+                            <h4 class="font-bold text-lg">${m.title}</h4>
+                            <span class="status-badge ${isCompleted ? 'status-completed' : 'status-pending'}">${isCompleted ? 'Completed' : 'Upcoming/Live'}</span>
+                        </div>
+                        <div class="text-sm text-gray-400 mb-2">Prize: ${m.prizePool ? 'See Details' : 'TBA'}</div>
+                        ${resultHtml}
+                    </div>`;
+                }
+                count++;
+            }
+
+            if(htmlContent === '') {
+                 htmlContent = '<p class="text-center text-gray-500">No matches found.</p>';
+            }
+
+            container.innerHTML = htmlContent;
+        }
+
+        function viewMatchResults(tourId) {
+            db.collection('tournaments').doc(tourId).get().then(doc => {
+                if(!doc.exists) return;
+                const t = doc.data();
+                const tbody = document.getElementById('resultTableBody');
+                
+                if(!t.players || t.players.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="4" class="text-center">No Data</td></tr>';
+                } else {
+                    const sortedPlayers = [...t.players].sort((a, b) => (a.rank || 999) - (b.rank || 999));
+                    
+                    tbody.innerHTML = sortedPlayers.map((p, index) => {
+                        const rankClass = p.rank === 1 ? 'rank-1' : p.rank === 2 ? 'rank-2' : p.rank === 3 ? 'rank-3' : '';
+                        return `
+                        <tr class="${p.userId === currentUser.id ? 'bg-red-900/30' : ''}">
+                            <td>
+                                <div class="rank-circle ${rankClass}">${p.rank || '-'}</div>
+                            </td>
+                            <td>
+                                <div class="font-bold text-white">${p.gameIdName || p.name}</div>
+                                <div class="text-[10px] text-gray-500">${p.userId === currentUser.id ? '(You)' : ''}</div>
+                            </td>
+                            <td class="text-gray-300 text-center">0</td> 
+                            <td class="text-right font-bold text-green-400">${p.prize || '0 TK'}</td>
+                        </tr>`;
+                    }).join('');
+                }
+                document.getElementById('resultViewModal').classList.add('active');
+            });
+        }
+
+        // ===== TOURNAMENT ADMIN LOGIC =====
+        async function addNewTournament() {
+            const title = document.getElementById('tourTitle').value.trim();
+            const rules = document.getElementById('tourRules').value.trim();
+            const prize = document.getElementById('tourPrize').value.trim();
+            const entryFee = document.getElementById('tourFee').value.trim();
+            const target = parseInt(document.getElementById('tourTarget').value);
+            const type = document.getElementById('tourType').value;
+            const map = document.getElementById('tourMap').value.trim();
+            const ver = document.getElementById('tourVer').value.trim();
+            const matchNum = document.getElementById('tourMatchNum').value.trim();
+            const killPrize = document.getElementById('tourKillPrize').value.trim();
+            const gmailReq = document.getElementById('tourGmailReq').value;
+            const startTimeStr = document.getElementById('tourStartTime').value; // Get raw string
+            const gmailPassHint = document.getElementById('tourGmailPassHint').value.trim();
+            const notice = document.getElementById('tourNotice').value.trim();
+
+            if (!title || !target) { showToast('Title & Players required!', 'error'); return; }
+
+            // ROBUST TIME HANDLING
+            let startTimeTimestamp = null;
+            if (startTimeStr) {
+                const dateObj = new Date(startTimeStr);
+                if (!isNaN(dateObj.getTime())) {
+                    // Convert to Firestore Timestamp explicitly
+                    startTimeTimestamp = firebase.firestore.Timestamp.fromDate(dateObj);
+                }
+            }
+
+            await db.collection('tournaments').add({
+                title, rules, prizePool: prize, entryFee, maxPlayers: target, type, map, ver,
+                matchNumber: matchNum || Math.floor(Math.random()*9000)+1000,
+                killPrize: killPrize || '0',
+                requiredGmails: parseInt(gmailReq),
+                startTime: startTimeTimestamp, // Saved as proper Timestamp
+                gmailPassHint,
+                notice, 
+                currentPlayers: 0, status: 'open', roomId: '', roomPassword: '', players: [], resultText: '',
+                resultsPublished: false,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+
+            ['tourTitle','tourRules','tourPrize','tourFee','tourTarget','tourMap','tourVer','tourMatchNum','tourKillPrize','tourStartTime','tourGmailPassHint','tourNotice'].forEach(id=>document.getElementById(id).value='');
+            showToast('ম্যাচ তৈরি হয়েছে!', 'success');
+        }
+
+        function listenToAdminTournaments() {
+            const container = document.getElementById('adminTournamentList');
+            db.collection('tournaments').orderBy('createdAt', 'desc').onSnapshot(snapshot => {
+                container.innerHTML = '';
+                if (snapshot.empty) { container.innerHTML = '<p class="text-center text-gray-500">No tournaments</p>'; return; }
+                
+                snapshot.forEach(doc => {
+                    const t = doc.data();
+                    
+                    // ================== CRITICAL FIX START ==================
+                    // Filter out deleted tournaments so they don't appear in Admin Panel list
+                    if (t.status === 'deleted') {
+                        return; 
+                    }
+                    // ================== CRITICAL FIX END ==================
+
+                    container.innerHTML += `
+                        <div class="card bg-gray-900 flex justify-between items-center">
+                            <div>
+                                <h4 class="font-bold text-white">${t.title}</h4>
+                                <p class="text-xs text-gray-400">${t.currentPlayers}/${t.maxPlayers} | ${t.status}</p>
+                            </div>
+                            <button onclick="openTournamentEdit('${doc.id}')" class="btn-outline text-xs py-1 px-3">Manage</button>
+                        </div>`;
+                });
+            });
+        }
+
+        async function openTournamentEdit(tourId) {
+            currentEditingTourId = tourId;
+            const doc = await db.collection('tournaments').doc(tourId).get();
+            const t = doc.data();
+
+            document.getElementById('editTourTitle').textContent = t.title;
+            document.getElementById('editTourTarget').textContent = t.maxPlayers;
+            document.getElementById('editTourJoined').textContent = t.currentPlayers;
+            document.getElementById('editRoomId').value = t.roomId || '';
+            document.getElementById('editRoomPass').value = t.roomPassword || '';
+            
+            document.getElementById('adminTournamentEditModal').classList.add('active');
+            loadEditPlayerList(tourId);
+        }
+
+        async function loadEditPlayerList(tourId) {
+            const listDiv = document.getElementById('editTourPlayerList');
+            const tourDoc = await db.collection('tournaments').doc(tourId).get();
+            const t = tourDoc.data();
+            const players = t.players || [];
+            
+            if (players.length === 0) { listDiv.innerHTML = '<p class="text-center text-xs text-gray-500">No players</p>'; return; }
+            
+            listDiv.innerHTML = players.map((p, idx) => `
+                <div class="text-xs bg-gray-800 p-2 rounded flex items-center gap-2 justify-between">
+                    <div>
+                        <span class="font-bold text-red-500">${p.gameIdName || p.name}</span>
+                        <span class="text-gray-500 text-[10px] block">${p.phone}</span>
+                    </div>
+                    <div class="flex gap-2">
+                        <input type="number" placeholder="#" class="input-field w-12 py-1 px-2 text-center rank-input" data-idx="${idx}" value="${p.rank || ''}">
+                        <input type="text" placeholder="Prize" class="input-field w-20 py-1 px-2 prize-input" data-idx="${idx}" value="${p.prize || ''}">
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function saveTournamentResults() {
+            const doc = await db.collection('tournaments').doc(currentEditingTourId).get();
+            const t = doc.data();
+            let players = [...(t.players || [])];
+            
+            const rankInputs = document.querySelectorAll('.rank-input');
+            const prizeInputs = document.querySelectorAll('.prize-input');
+            
+            if (players.length === 0) {
+                showToast('No players to update!', 'error');
+                return;
+            }
+
+            let updated = false;
+            players.forEach((p, index) => {
+                const rInput = document.querySelector(`.rank-input[data-idx="${index}"]`);
+                const pInput = document.querySelector(`.prize-input[data-idx="${index}"]`);
+                
+                if (rInput && pInput) {
+                    const rVal = rInput.value.trim();
+                    const pVal = pInput.value.trim();
+                    if (rVal) {
+                        players[index].rank = parseInt(rVal);
+                        players[index].prize = pVal || '0 TK';
+                        updated = true;
+                    }
+                }
+            });
+
+            if (updated) {
+                await db.collection('tournaments').doc(currentEditingTourId).update({
+                    players: players,
+                    resultsPublished: true
+                });
+                showToast('Results Published!', 'success');
+            } else {
+                showToast('No rank entered!', 'warning');
+            }
+        }
+
+        async function saveTournamentRoom() {
+            const rid = document.getElementById('editRoomId').value.trim();
+            const rpass = document.getElementById('editRoomPass').value.trim();
+            if (!rid || !rpass) { showToast('Room ID & Password দিন!', 'error'); return; }
+            
+            await db.collection('tournaments').doc(currentEditingTourId).update({
+                roomId: rid, roomPassword: rpass
+            });
+            showToast('Room Details Saved!', 'success');
+        }
+
+        // UPDATED: Soft Delete Logic
+        async function deleteMatch() {
+            if(!confirm("Delete this match? It will be removed from Home Page but will remain in User History.")) return;
+            // Using Soft Delete (update status) instead of hard delete to preserve history
+            await db.collection('tournaments').doc(currentEditingTourId).update({ status: 'deleted' });
+            showToast('Match Deleted!', 'success');
+            closeModal('adminTournamentEditModal');
+        }
+
+        // ===== ACTIVATION =====
+        function openActivationModal() {
+            document.getElementById('activationModal').classList.add('active');
+        }
+
+        async function submitActivation() {
+            const existingCheck = await db.collection('requests').where('userId', '==', currentUser.id).where('type', '==', 'activation').where('status', '==', 'pending').get();
+            if (!existingCheck.empty) { showToast('আপনার রিকুয়েস্ট ইতিমধ্যে আছে!', 'warning'); return; }
+            await db.collection('requests').add({
+                type: 'activation', userId: currentUser.id, userName: currentUser.name, userPhone: currentUser.phone,
+                status: 'pending', createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            closeModal('activationModal');
+            showToast('Activation Request Submitted!', 'success');
+        }
+
+        // ===== SIDEBAR & MODALS =====
+        function openSidebar() { document.getElementById('sidebar').classList.add('open'); document.getElementById('overlay').classList.add('active'); }
+        function closeSidebar() { document.getElementById('sidebar').classList.remove('open'); document.getElementById('overlay').classList.remove('active'); }
+        function closeModal(modalId) { document.getElementById(modalId).classList.remove('active'); }
+
+        function copyReferralLink() {
+            navigator.clipboard.writeText(document.getElementById('referralLink').value).then(() => showToast('Link Copied!', 'success'));
+        }
+
+        function openSupportLink() {
+            // UPDATED: Default support link
+            const link = appSettingsCache?.supportLink || 'https://t.me/LGT_SPORTS_TRN_BOT';
+            window.open(link, '_blank');
+        }
+
+        function openWithdrawModal() {
+            if (!currentUser) return;
+            closeSidebar();
+            if (!currentUser.isActive) { showToast('Account Activate করুন!', 'warning'); openActivationModal(); return; }
+            
+            const walletTypes = [{ key: 'refer', name: 'Refer Wallet', icon: 'fas fa-users', color: 'text-red-500' }];
+            document.getElementById('withdrawContent').innerHTML = `<div class="space-y-3">${walletTypes.map(w => {
+                const balance = currentUser.wallets[w.key] || 0;
+                return `<div class="wallet-card flex items-center justify-between"><div class="flex items-center gap-3"><i class="${w.icon} text-xl ${w.color}"></i><div><p class="text-sm font-medium">${w.name}</p></div></div><div class="text-right"><p class="font-bold gold-text">${formatCurrency(balance)}</p></div></div>`;
+            }).join('')}</div>`;
+            document.getElementById('withdrawModal').classList.add('active');
+        }
+
+        async function openHistoryModal() {
+            if (!currentUser) return;
+            closeSidebar();
+            document.getElementById('historyModal').classList.add('active');
+            const snapshot = await db.collection('requests').where('userId', '==', currentUser.id).get();
+            const allData = [];
+            snapshot.forEach(doc => allData.push({id: doc.id, ...doc.data()}));
+            
+            const container = document.getElementById('historyContent');
+            if (allData.length === 0) { container.innerHTML = '<p class="text-center text-gray-500 py-8">No history found</p>'; return; }
+            allData.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+            container.innerHTML = allData.map(r => {
+                const time = r.createdAt?.seconds ? new Date(r.createdAt.seconds * 1000).toLocaleString() : 'Processing...';
+                return `<div class="p-3 bg-gray-900 rounded-xl"><div class="flex items-center justify-between mb-2"><span class="font-medium">${r.type === 'tournament_join' ? 'Match Join' : r.type.charAt(0).toUpperCase() + r.type.slice(1)}</span><span class="status-badge status-${r.status}">${r.status}</span></div><p class="text-xs text-gray-500 mt-1">${time}</p></div>`;
+            }).join('');
+        }
+
+        async function openReferHistoryModal() {
+            if (!currentUser) return;
+            closeSidebar();
+            const container = document.getElementById('referHistoryContent');
+            container.innerHTML = '<div class="loading-spinner"></div>';
+            document.getElementById('referHistoryModal').classList.add('active');
+            const snapshot = await db.collection('users').where('referredBy', '==', currentUser.referralCode).get();
+            if (snapshot.empty) { container.innerHTML = '<p class="text-center text-gray-500 py-8">No referred users found</p>'; return; }
+            container.innerHTML = '';
+            snapshot.forEach(doc => {
+                const u = doc.data();
+                const time = u.createdAt?.seconds ? new Date(u.createdAt.seconds * 1000).toLocaleDateString() : 'N/A';
+                container.innerHTML += `<div class="p-3 bg-gray-900 rounded-xl flex items-center justify-between"><div><p class="font-medium">${u.name}</p><p class="text-xs text-gray-400">${u.phone}</p></div><span class="status-badge ${u.isActive ? 'status-approved' : 'status-pending'}">${u.isActive ? 'Active' : 'Inactive'}</span></div>`;
+            });
+        }
+
+        // ===== ADMIN PANEL REAL-TIME LISTENERS =====
+        async function loadAdminPanel() { 
+            showPage('adminPanel'); 
+            listenToAdminStats(); 
+            listenToAdminTournaments(); 
+        }
+
+        function listenToAdminStats() {
+            db.collection('users').onSnapshot(snapshot => {
+                let activeCount = 0;
+                snapshot.forEach(doc => { if(doc.data().isActive) activeCount++; });
+                document.getElementById('totalUsers').textContent = snapshot.size;
+                document.getElementById('activeUsers').textContent = activeCount;
+            });
+
+            db.collection('requests').where('status', '==', 'pending').onSnapshot(snapshot => {
+                document.getElementById('pendingRequests').textContent = snapshot.size;
+            });
+            
+            db.collection('tournaments').onSnapshot(snapshot => {
+                document.getElementById('totalMatches').textContent = snapshot.size;
+            });
+        }
+
+        function switchAdminTab(tab) {
+            const tabs = document.querySelectorAll('.admin-tab');
+            tabs.forEach(t => { t.classList.remove('bg-red-600', 'text-white'); t.classList.add('bg-gray-800', 'text-gray-400'); });
+            event.target.classList.add('bg-red-600', 'text-white');
+            event.target.classList.remove('bg-gray-800', 'text-gray-400');
+            document.querySelectorAll('.admin-content').forEach(c => c.style.display = 'none');
+            document.getElementById('admin' + tab.charAt(0).toUpperCase() + tab.slice(1)).style.display = 'block';
+            if (tab === 'overview') listenToAdminStats();
+            if (tab === 'tournaments') listenToAdminTournaments();
+            if (tab === 'users') loadUsersList();
+            if (tab === 'requests') listenToAdminRequests();
+            if (tab === 'settings') loadAdminSettings();
+        }
+
+        async function updateNotice() {
+            const notice = document.getElementById('adminNotice').value.trim();
+            if (!notice) return;
+            await db.collection('settings').doc('app').set({ notice }, { merge: true });
+            showToast('Welcome Notice Updated!', 'success');
+        }
+
+        async function loadUsersList() {
+            const snapshot = await db.collection('users').get();
+            renderUsersList(snapshot.docs);
+        }
+
+        function renderUsersList(docs) {
+            const container = document.getElementById('usersList');
+            if (docs.length === 0) { container.innerHTML = '<p class="text-center text-gray-500">No users found</p>'; return; }
+            container.innerHTML = '';
+            docs.forEach(doc => {
+                const u = doc.data();
+                container.innerHTML += `<div class="card flex items-center justify-between"><div class="flex items-center gap-3"><div class="w-12 h-12 rounded-full ${u.isActive ? 'theme-gradient' : 'bg-gray-700'} flex items-center justify-center"><i class="fas fa-user ${u.isActive ? 'text-white' : 'text-gray-500'}"></i></div><div><p class="font-medium">${u.name}</p><p class="text-sm text-gray-400">${u.phone}</p></div></div><div class="flex items-center gap-2"><span class="status-badge ${u.isActive ? 'status-approved' : 'status-pending'}">${u.isActive ? 'Active' : 'Inactive'}</span><button onclick="toggleUserStatus('${doc.id}')" class="w-8 h-8 rounded-lg ${u.isActive ? 'bg-red-500/20 text-red-500' : 'bg-green-500/20 text-green-500'}"><i class="fas ${u.isActive ? 'fa-user-minus' : 'fa-user-check'}"></i></button></div></div>`;
+            });
+        }
+
+        async function toggleUserStatus(userId) {
+            const ref = db.collection('users').doc(userId);
+            const doc = await ref.get();
+            const user = doc.data();
+            
+            if (!user.isActive && user.referredBy) {
+                const referrerSnap = await db.collection('users').where('referralCode', '==', user.referredBy).get();
+                if (!referrerSnap.empty) {
+                    await referrerSnap.docs[0].ref.update({ 'stats.inactiveRefers': firebase.firestore.FieldValue.increment(-1), 'stats.activeRefers': firebase.firestore.FieldValue.increment(1) });
+                }
+            }
+            
+            await ref.update({ isActive: !user.isActive });
+            loadUsersList();
+            showToast('User status updated!', 'success');
+        }
+
+        function listenToAdminRequests() {
+            const container = document.getElementById('requestsList');
+            db.collection('requests').where('status', '==', 'pending').onSnapshot(snapshot => {
+                if(snapshot.empty) { container.innerHTML = '<p class="text-center text-gray-500">No requests found</p>'; return; }
+                container.innerHTML = '';
+                snapshot.forEach(doc => {
+                    const r = doc.data();
+                    const time = r.createdAt?.seconds ? new Date(r.createdAt.seconds * 1000).toLocaleString() : 'Just now';
+                    container.innerHTML += `<div class="card"><div class="flex items-center justify-between mb-3"><div><span class="font-medium">${r.userName}</span><span class="text-sm text-gray-400 ml-2">${r.userPhone}</span></div><span class="status-badge status-${r.status}">${r.status}</span></div><div class="text-sm text-gray-400 mb-3"><p><strong>Type:</strong> ${r.type}</p>${r.tournamentId ? `<p><strong>Tour ID:</strong> ${r.tournamentId}</p>` : ''}${r.details ? `<p><strong>Details:</strong> <span class="text-xs text-white">${r.details}</span></p>` : ''}</div><div class="flex gap-2"><button onclick="approveRequest('${doc.id}', '${r.type}')" class="btn-gold flex-1 py-2 text-sm"><i class="fas fa-check mr-1"></i>Approve</button><button onclick="rejectRequest('${doc.id}', '${r.type}')" class="flex-1 py-2 bg-red-500/20 text-red-500 rounded-xl text-sm hover:bg-red-500 hover:text-white transition"><i class="fas fa-times mr-1"></i>Reject</button></div></div>`;
+                });
+            });
+        }
+
+        async function approveRequest(requestId, type) {
+            const reqRef = db.collection('requests').doc(requestId);
+            const reqDoc = await reqRef.get();
+            const r = reqDoc.data();
+            await reqRef.update({ status: 'approved' });
+            
+            if (type === 'activation') {
+                const userRef = db.collection('users').doc(r.userId);
+                await userRef.update({ isActive: true });
+                const userDoc = await userRef.get();
+                const userData = userDoc.data();
+                if (userData.referredBy) {
+                    const referrerSnap = await db.collection('users').where('referralCode', '==', userData.referredBy).get();
+                    if (!referrerSnap.empty) {
+                        // Bonus logic if needed
+                    }
+                }
+            } else if (type === 'tournament_join') {
+                const playerData = { userId: r.userId, name: r.userName, phone: r.userPhone, gameIdName: r.gameIdName };
+                await db.collection('tournaments').doc(r.tournamentId).update({ 
+                    currentPlayers: firebase.firestore.FieldValue.increment(1),
+                    players: firebase.firestore.FieldValue.arrayUnion(playerData)
+                });
+                await db.collection('users').doc(r.userId).update({ joinedTournaments: firebase.firestore.FieldValue.arrayUnion(r.tournamentId) });
+            }
+            
+            showToast('Request Approved!', 'success');
+        }
+
+        async function rejectRequest(requestId, type) {
+            await db.collection('requests').doc(requestId).update({ status: 'rejected' });
+            showToast('Request Rejected!', 'warning');
+        }
+
+        async function loadAdminSettings() {
+            const doc = await db.collection('settings').doc('app').get();
+            const s = doc.exists ? doc.data() : {};
+            document.getElementById('supportLink').value = s.supportLink || 'https://t.me/LGT_SPORTS_TRN_BOT';
+            document.getElementById('activationNoticeText').value = s.activationNoticeText || 'Welcome! Your account is now active.';
+            document.getElementById('adminNotice').value = s.notice || ''; 
+        }
+
+        async function updateAdminCredentials() {
+            const username = document.getElementById('newAdminUsername').value.trim();
+            const password = document.getElementById('newAdminPassword').value.trim();
+            if (!username || !password) { showToast('All fields required!', 'error'); return; }
+            await db.collection('settings').doc('admin').set({ username, password });
+            showToast('Admin Credentials Updated!', 'success');
+        }
+
+        async function saveGeneralSettings() {
+            const ref = db.collection('settings').doc('app');
+            await ref.set({ 
+                supportLink: document.getElementById('supportLink').value.trim(),
+                activationNoticeText: document.getElementById('activationNoticeText').value.trim()
+            }, { merge: true });
+            showToast('Settings Saved!', 'success');
+        }
+
+        // ===== INIT =====
+        async function checkLoginState() {
+            const userId = localStorage.getItem('currentUserId');
+            const adminLoggedIn = localStorage.getItem('adminLoggedIn');
+            
+            if (userId) {
+                const doc = await db.collection('users').doc(userId).get();
+                if (doc.exists) {
+                    await verifyCloudData(userId);
+                    const freshDoc = await db.collection('users').doc(userId).get();
+                    currentUser = { id: freshDoc.id, ...freshDoc.data() };
+                    loadUserDashboard();
+                    return;
+                }
+            }
+            if (adminLoggedIn === 'true') { loadAdminPanel(); return; }
+            showPage('loginPage');
+            
+            const locked = await isDeviceRegistered();
+            if (locked) {
+                const regBtn = document.getElementById('registerTabBtn');
+                regBtn.disabled = true;
+                regBtn.textContent = 'Registered';
+            }
+        }
+
+        function checkReferralCode() {
+            const startapp = new URLSearchParams(window.location.search).get('startapp');
+            if (startapp && startapp.startsWith('REF')) {
+                document.getElementById('regReferral').value = startapp;
+                switchAuthTab('register');
+            }
+        }
+
+        checkLoginState();
+        checkReferralCode();
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') { closeSidebar(); document.querySelectorAll('.modal').forEach(m => m.classList.remove('active')); }
+        });
+    </script>
+</body>
+</html>
